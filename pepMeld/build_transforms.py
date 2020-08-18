@@ -17,7 +17,7 @@ import json
 
 def build_transforms(args):
     transformations = transformation_class()
-    filepath = args['transforms_path'][0]
+    filepath = args['transforms_path']
     print(filepath)
     with open(filepath) as f:
         transform_config = json.load(f)
