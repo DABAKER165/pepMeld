@@ -1,0 +1,300 @@
+[
+	{
+		"name" : "open_data_meta_files",
+		"order" : 0.1,
+		"transformation_func":"open_data_meta_files",
+		"transformation_args" : {
+			"data_sep":"\t",
+			"data_filepaths": "/scratch/Raw_aggregate_data.txt",
+			"meta_filepaths":"/scratch/meta_all.csv",
+			"meta_sep":","
+			}
+	},
+	{
+		"name" : "log_transform",
+		"order" : 1,
+		"transformation_func":"log_transform",
+		"transformation_args" : {
+			"base" : 2,
+			"df_in_name" : "df",
+			"df_out_name" : "df"
+		}
+	},
+	{
+		"name" : "Find Clusters and Merge with DF",
+		"order" : 2.0,
+		"transformation_func":"find_clusters",
+		"transformation_args" : {
+			"df_in_name":"df",
+			"df_cluster_name":"expanded_cluster",
+			"df_out_name":"df_clustered",
+			"OUTPUT_CHARTS_DIR":"/scratch/out",
+			"merge_to_input_df":true,
+			"percentile_slices":20,
+			"eps":3,
+			"min_samples":10,
+			"save_plot":true
+		}
+	},
+
+	{
+		"name" : "Exclude clusters",
+		"order" : 2.2,
+		"transformation_func":"exclude_clustered_data",
+		"transformation_args" : {
+			"df_in_name":"df_clustered",			
+			"df_out_name":"df",
+			"unstack":true,
+			"filter_clusters":true,
+			"filter_expanded":true,
+			"min_original_cluster_size":10,
+			"min_cluster_ratio":0
+		}
+	},
+
+	{
+		"name" : "local_spatial_correction",
+		"order" : 3.0,
+		"transformation_func":"local_spatial_correction",
+		"transformation_args" : {
+			"df_in_name":"df",			
+			"df_out_name":"df",
+			"empty_slot_value":2,
+			"save_plot":true,
+			"save_table":true,
+			"OUTPUT_CHARTS_DIR":"/scratch/out"
+		}
+	},
+	{
+		"name" : "large_area_spatial_correction",
+		"order" : 4.0,
+		"skip" : false,
+		"transformation_func":"large_area_spatial_correction",
+		"transformation_args" : {
+			"df_in_name":"df",			
+			"df_out_name":"df",
+			"window_size":75,
+			"save_plot":true,
+			"OUTPUT_CHARTS_DIR":"/scratch/out"
+		}
+	},
+	
+
+	
+	{
+		"name" : "Take Median of Replicates",
+		"order" : 5.0,
+		"transformation_func":"median_group_by",
+		"transformation_args" : {
+			"df_in_name":"df",			
+			"df_out_name":"df",
+			"group_by_columns" : ["PROBE_SEQUENCE","PEP_LEN","EXCLUDE"]
+		}
+	},
+	{
+		"name" : "Shift to the 25 percentile",
+		"order" : 6.0,
+		"transformation_func":"shift_baseline",
+		"transformation_args" : {
+			"df_in_name":"df",			
+			"df_out_name":"df",
+			"percentile" : 25
+		}
+	},
+	{
+		"name" : "Stack Data",
+		"order" : 7.0,
+		"transformation_func":"melt_class",
+		"transformation_args" : {
+			"df_in_name":"df",			
+			"df_out_name":"stacked",
+			"value_name" : "INTENSITY",
+			"var_name":null
+		}
+	},
+	{
+		"name" : "Merge Stack Data with Meta Data",
+		"order" : 8.0,
+		"transformation_func":"merge_data_frames",
+		"transformation_args" : {
+			"df_name_left":"meta",			
+			"df_name_right":"stacked",
+			"df_out" : "stacked",
+			"how" : "inner"
+		}
+	},
+	
+	{
+		"name" : "open_files corr_wuhan_only",
+		"order" : 9.0,
+		"transformation_func":"open_files",
+		"transformation_args" : {
+			"filepaths" : "/corr_path/wuhan_seq_only.tsv.gz",
+			"df_out_name" : "corr_wuhan_only",
+			"required_descriptor_columns" : ["SEQ_ID","PROBE_SEQUENCE", "POSITION"],
+			"keep_columns":["SEQ_ID", "SEQ_NAME", "PROTEIN", "POSITION", "PROBE_SEQUENCE"],
+			"rename_dictionary":{"PROBE_SEQUENCE":"PROBE_SEQUENCE", "SEQ_ID":"SEQ_ID", "POSITION":"POSITION", "PROTEIN":"PROTEIN", "SEQ_NAME":"SEQ_NAME"},
+			"sep":"\t"
+		}
+	},
+
+	{
+		"name" : "Merge Stack Meta data and corr_wuhan_only",
+		"order" : 9.1,
+		"transformation_func":"merge_data_frames",
+		"transformation_args" : {
+			"df_name_left":"corr_wuhan_only",			
+			"df_name_right":"stacked",
+			"df_out" : "corr_wuhan_only",
+			"how" : "inner"
+		}
+	},
+	{
+		"name" : "save corr_wuhan_only_to_tsv",
+		"order" : 9.2,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "corr_wuhan_only",
+			"filepath" : "/scratch/out/stacked_wuhan_only.tsv"
+		}
+	},
+	
+	{
+		"name" : "open_files corr all_seq_except_wi",
+		"order" : 10.0,
+		"transformation_func":"open_files",
+		"transformation_args" : {
+			"filepaths" : "/corr_path/all_seq_except_wi.tsv.gz",
+			"df_out_name" : "corr_all_seq_except_wi",
+			"required_descriptor_columns" : ["SEQ_ID","PROBE_SEQUENCE", "POSITION"],
+			"keep_columns":["SEQ_ID", "SEQ_NAME", "PROTEIN", "POSITION", "PROBE_SEQUENCE"],
+			"rename_dictionary":{"PROBE_SEQUENCE":"PROBE_SEQUENCE", "SEQ_ID":"SEQ_ID", "POSITION":"POSITION", "PROTEIN":"PROTEIN", "SEQ_NAME":"SEQ_NAME"},
+			"sep":"\t"
+		}
+	},
+
+	{
+		"name" : "Merge Stack Meta data and stacked_all_seq_except_wi",
+		"order" : 10.1,
+		"transformation_func":"merge_data_frames",
+		"transformation_args" : {
+			"df_name_left":"corr_all_seq_except_wi",			
+			"df_name_right":"stacked",
+			"df_out" : "corr_all_seq_except_wi",
+			"how" : "inner"
+		}
+	},
+	{
+		"name" : "save corr_stacked_all_seq_except_wi",
+		"order" : 10.2,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "corr_all_seq_except_wi",
+			"filepath" : "/scratch/out/stacked_all_seq_except_wi.tsv"
+		}
+	},
+	
+	{
+		"name" : "open_files corr wi_seq_only",
+		"order" : 11.0,
+		"transformation_func":"open_files",
+		"transformation_args" : {
+			"filepaths" : "/corr_path/wi_seq_only.tsv.gz",
+			"df_out_name" : "corr_wi_seq_only",
+			"required_descriptor_columns" : ["SEQ_ID","PROBE_SEQUENCE", "POSITION"],
+			"keep_columns":["SEQ_ID", "SEQ_NAME", "PROTEIN", "POSITION", "PROBE_SEQUENCE"],
+			"rename_dictionary":{"PROBE_SEQUENCE":"PROBE_SEQUENCE", "SEQ_ID":"SEQ_ID", "POSITION":"POSITION", "PROTEIN":"PROTEIN", "SEQ_NAME":"SEQ_NAME"},
+			"sep":"\t"
+		}
+	},
+
+
+	{
+		"name" : "Merge Stack Meta data and wi_seq_only",
+		"order" : 11.1,
+		"transformation_func":"merge_data_frames",
+		"transformation_args" : {
+			"df_name_left":"corr_wi_seq_only",			
+			"df_name_right":"stacked",
+			"df_out" : "corr_wi_seq_only",
+			"how" : "inner"
+		}
+	},
+	{
+		"name" : "save corr_wi_seq_only",
+		"order" : 11.2,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "corr_wi_seq_only",
+			"filepath" : "/scratch/out/stacked_compare_wuhan_wi_diff_seq_only.tsv"
+		}
+	},
+	
+	
+	{
+		"name" : "save log_transform_to_tsv",
+		"order" : 1.1,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "df",
+			"filepath" : "/scratch/out/df_log_transform.tsv"
+		}
+	},
+	{
+		"name" : "Save df_clustered to .tsv",
+		"order" : 2.1,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "df_clustered",
+			"filepath" : "/scratch/out/df_clustered.tsv"
+		}
+	},
+	
+	{
+		"name" : "Save df_excluded_clusters to .tsv",
+		"order" : 2.3,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "df",
+			"filepath" : "/scratch/out/df_clustered.tsv"
+		}
+	},
+	
+	
+	{
+		"name" : "Save median to .tsv",
+		"order" : 5.1,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "df",
+			"filepath" : "/scratch/out/df_median.tsv"
+		}
+	},
+	{
+		"name" : "Save shifted baseline to .tsv",
+		"order" : 6.1,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "df",
+			"filepath" : "/scratch/out/df_baseline_shifted.tsv"
+		}
+	},
+	{
+		"name" : "Save stacked to .tsv",
+		"order" : 8.1,
+		"transformation_func":"save_to_csv",
+		"transformation_args" : {
+			"sep" : "\t",
+			"df_in_name" : "stacked",
+			"filepath" : "/scratch/out/df_stacked.tsv"
+		}
+	}
+]
