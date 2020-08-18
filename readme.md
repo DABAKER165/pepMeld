@@ -25,7 +25,7 @@ Peptide Microarray Workflow. Python 3.5. docker, open-source.
 - Baseline Matching
 - Background Subtraction / Sample Subtraction
 - Rolling Medians
-- Rolling Min/Max
+- Rolling Min/Max (under construction)
 - Stacking (a.k.a. Melting) data
 - Merging Sequence files (a.k.a corresponding keys)
 - Merging Sample Metadata files
