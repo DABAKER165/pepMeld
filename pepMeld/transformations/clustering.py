@@ -29,7 +29,6 @@ def plot_cluster_map(X,
     from sklearn.cluster import DBSCAN
     import os
     from sklearn import metrics
-    from sklearn.datasets.samples_generator import make_blobs
     from sklearn.preprocessing import StandardScaler
     # #############################################################################
     # Compute DBSCAN
@@ -112,7 +111,6 @@ def plot_cluster_map_multi(df_filtered_dict,
     import os
     from sklearn.cluster import DBSCAN
     from sklearn import metrics
-    from sklearn.datasets.samples_generator import make_blobs
     from sklearn.preprocessing import StandardScaler
     quantile_group = df_filtered_dict['quantile_group']
     range_low = df_filtered_dict['range_low']

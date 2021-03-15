@@ -3,3 +3,4 @@ sklearn
 matplotlib
 statsmodels
 seaborn>=0.10.0
+pandas
