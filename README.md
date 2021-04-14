@@ -50,19 +50,24 @@ python /pepMeld/process_arrays.py --transforms_path=/scratch/${pepMeld_transform
 ### Installing from repository
 1. Download the github repository (instructions assumes repository is downloaded as tar.gz to ~/ [/home/<username>/ or /Users/<username>/])
 2. Uncompress as needed.
+3. sklearn is constantly evolving and renaming functions.  This was tested with version sklearn (scikit-learn) 0.23.2 and later versions will need code adjustments to reflect these changes.
 
 ```bash
-# scipy
-# sklearn
-# matplotlib
-# statsmodels
-# seaborn>=0.10.0
-# pandas
+# scipy==1.6.1
+# scikit-learn==0.23.2
+# matplotlib==3.3.1
+# statsmodels==0.11.0
+# seaborn==0.11.1
+# pandas==1.2.2
 # Add the requirements you are missing 
+# add tranformation reltative path here:
+pepMeld_transformations_path=<transformations_path.json>
+
 pip install <requirements> 
 cd ~/
 tar -xzvf pepMeld.tar.gz
-python ~/pepMeld/process_arrays.py --transforms_path=/scratch/<pepMeld_transformations.json>
+
+python ~/pepMeld/process_arrays.py --transforms_path=${pepMeld_transformations_path}
 
 ```
 
