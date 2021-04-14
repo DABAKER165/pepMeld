@@ -27,22 +27,24 @@ Copying the files and launching is an easy way to run the data, however, you may
 4. Change directories to the ~/pepMeld/pepmeld_docker repository
 5. Create a docker image
 ```bash
-# you can add your own tag here
+# you can add your own tag here:
 image_tag=v1 
-# set your path to data here
+# set your path to data here:
 path_to_data_and_config_dir=<path_to_data_and_config_dir> 
+# set the relative path to your transformation file here:
+pepMeld_transformations=transformations_v1.json
 # set the number of cores to dedicate to your image here.  pepMeld uses threading and can take advantage of multi-core processing
 cores=2 
 cd ~/
 tar -xzvf pepMeld.tar.gz
 cd ~/pepMeld/pepMeld_docker
 docker build -t pepmeld:${image_tag} .
-docker run --cpus ${cores} -it -v ${path_to_data_and_config_dir}>:/scratch pepmeld:${image_tag}
+docker run --cpus ${cores} -it -v ${path_to_data_and_config_dir}:/scratch pepmeld:${image_tag}
 # In the docker image create an output directory that matches your configuration
 mkdir -p /scratch/out
 mkdir -p /scratch/out_charts
 # set transforms_path to the path or your transforms pipeline JSON file.
-python /pepMeld/process_arrays.py --transforms_path=/scratch/<pepMeld_transformations.json>
+python /pepMeld/process_arrays.py --transforms_path=/scratch/${pepMeld_transformations}
 ```
 
 ### Installing from repository
