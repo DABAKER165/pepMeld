@@ -9,6 +9,8 @@ pepMeld can aggregate, normalize, and applies quality assurance checks and qualt
 Peptide Microarray data can be overwhelming and dificult to process and understand.  
 Our goal is to aid in the data processing and reduce the data to a form ready for analysis and charting with open source tools.
 
+pepMeld also includes a peptide alignment pipeline. This pipeline: peptide_aligner.py uses muscle (https://www.drive5.com/muscle/) and the correct version should be downloaded.  This pypelin aligns multiple sequences, grouped by strain and protein.  Users can set a comparing sequence as to the position number can be set relavent to the position of the comparing strain.  Due to gaps in the alignment, multiple positions can map to the same positoin in the comparing sequence. The user can use summary functions (such as pandas or other packages) to aggregate the multiple positions to a single corresponding intensity value for each sequence in the comparing sequence
+
 
 # Quickstart
 ## Installation
@@ -565,6 +567,61 @@ This primarily used for merging corresponding sequence files created by NimbleGe
 		}
 	}
 ]
+```
+# peptide_aligner.py
+- Can use the stacked data outputted from pepMeld and join to the aligned data.
+## peptide_aligner.py arguments
+```
+--fasta_path FASTA_PATH
+                        filepath to the fasta. The fasta seq_ids must match
+                        ids in the protein groups path
+  --seq_path SEQ_PATH   path of your stacked peptide sequences with a
+                        PROBE_SEQUENCE, SEQUENCE_ID and POSITION column.
+  --out_dir OUT_DIR     Directory files are outputted
+  --prot_groups_path PROT_GROUPS_PATH
+                        Table of first column SEQ_NAME (could be a common
+                        name) Each column is a different protein , each entry
+                        is an entry from the FASTA HEADER
+  --df_data_path DF_DATA_PATH
+                        If you want to join peptide data directly to the
+                        table, enter the path of the stacked data as created
+                        by pepMeld or equivelent format.
+  --seq_comp_id SEQ_COMP_ID
+                        Capital Sensitive, exact match to the SEQ_NAME column
+                        (first column) of the prot_groups_path file
+  --peptide_length PEPTIDE_LENGTH
+                        Set to the maximum Peptide length in your seq_path
+  --comparing_strain_prefix COMPARING_STRAIN_PREFIX
+                        Uses the SEQ_NAME (first column) of prot_groups_path
+                        table if blank, prefiex assigned in column names for
+                        csv files
+  --muscle_path MUSCLE_PATH
+                        path to muscle program, https://www.drive5.com/muscle
+```
+### fasta_path file set up
+- This is the fasta file for each sequence used.  The header mus match the prot_group_path values.
+### seq_path file
+- must have at least a PROBE_SEQUENCE, SEQ_ID, and POSITION columns 
+- SEQ_ID must match the fasta file headers. 
+### prot_groups_path file set up
+- First column must be a unique SEQ_NAME, it could be anything but two rows cannot have the same name
+- The Subsequent columns should be titled proteins or groupings
+- Each value in the table should be a header in the fasta file
+### df_data_path file
+- Must have (at minimum) Unique column names: a PROBE_SEQUENCE column, an INTENSITY column
+- Data should be stacked (melted) format
+- SAMPLE_NAME column and Metadata is optional but recommended.
+## peptide_aligner.py example
+```
+python3 ~/peptide_aligner.py \
+--fasta_path=~/igg/covid_except_wi.fasta \
+--seq_path=~/all_seq_except_wi.tsv.gz \
+--prot_groups_path=~/protien_seq_id_common_name_matrix.csv \
+--out_dir=~/out \
+--seq_comp_id=Wu1-SARS2 \
+--muscle_path=~/muscle \
+--peptide_length=16 \
+--data_path=~/df_stacked.tsv.gz
 ```
 # References
 AK, et al. (2020) “High-Throughput Identification of MHC Class I Binding Peptides Using an Ultradense Peptide Array.” J Immunol. 204(6): 1689-96. doi: 10.4049/jimmunol.1900889
