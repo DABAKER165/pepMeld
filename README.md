@@ -617,15 +617,15 @@ This primarily used for merging corresponding sequence files created by NimbleGe
 - SAMPLE_NAME column and Metadata is optional but recommended.
 ## peptide_aligner.py example
 ```
-python3 ~/peptide_aligner.py \
---fasta_path=~/igg/covid_except_wi.fasta \
---seq_path=~/all_seq_except_wi.tsv.gz \
---prot_groups_path=~/protien_seq_id_common_name_matrix.csv \
---out_dir=~/out \
+python3 /pepMeld/peptide_aligner.py \
+--fasta_path=/scratch/covid_except_wi.fasta \
+--seq_path=/scratch/all_sequences_except_wi.tsv.gz \
+--prot_groups_path=/scratch/protien_seq_id_common_name_matrix.csv \
+--out_dir=/scratch/out \
 --seq_comp_id=Wu1-SARS2 \
---muscle_path=~/muscle \
+--muscle_path=/muscle \
 --peptide_length=16 \
---data_path=~/df_stacked.tsv.gz
+--df_data_path=/scratch/out/df_stacked.tsv
 ```
 # References
 AK, et al. (2020) “High-Throughput Identification of MHC Class I Binding Peptides Using an Ultradense Peptide Array.” J Immunol. 204(6): 1689-96. doi: 10.4049/jimmunol.1900889
