@@ -293,6 +293,7 @@ class open_transform_files:
                 df_meta['EXCLUDE'] = df_meta.EXCLUDE.astype(str)
                 df_meta = df_meta.loc[df_meta.EXCLUDE != 'EXCLUDE']
             # make sure the type of column is str
+            df_meta[meta_vendor_name_column] = df_meta[meta_vendor_name_column].astype(str)
             df_meta[sample_name_column] = df_meta[sample_name_column].astype(str)
             data_rename_dictionary = dict(
                 zip(df_meta[meta_vendor_name_column], df_meta[sample_name_column]))
